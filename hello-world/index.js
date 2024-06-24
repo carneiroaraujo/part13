@@ -1,77 +1,37 @@
-require("dotenv").config()
 const express = require("express")
 const app = express()
-const {Sequelize, DataTypes, Model} = require("sequelize")
 
-const sequelize = new Sequelize(process.env.DATABASE_URL)
+const {PORT} = require("./util/config")
+const {connectToDatabase} = require("./util/db")
 
-class Note extends Model {}
+app.use(express.json())
 
-Note.init({
-	id: {
-		type: DataTypes.INTEGER,
-		primaryKey: true,
-		autoIncrement: true
-	},
-	content: {
-		type: DataTypes.TEXT,
-		allowNull: false
-	},
-	important: {
-		type: DataTypes.BOOLEAN,
-	},
-	date: {
-		type: DataTypes.DATE
-	}
-}, {
-	sequelize,
-	underscored: true,
-	timestamps: false,
-	modelName: "note"
-})
+app.use("/api/notes", require("./controllers/"))
 
-Note.sync()
+async function start() {
+	await connectToDatabase()
+	app.listen(PORT, () => {
+		console.log(`Server running on port ${PORT}`)
+	})
+}
 
-app.get("/api/notes/:id", async (req, res) => {
+start()
 
-	const note = await Note.findByPk(req.params.id)
-	if (note) {
-		res.json(note)
-	} else {
-		res.status(404).end()
-	}
-})
+// require("dotenv").config()
+// const express = require("express")
+// const app = express()
+
+// const sequelize = new Sequelize(process.env.DATABASE_URL)
 
 
-app.get("/api/notes", async (req, res) => {
-	const notes = await Note.findAll()
-	res.json(notes)
-})
 
-app.post("/api/notes", async (req, res) => {
-	console.log(req.body)
-	try {	
-		const note = await Note.create(req.body)
-		res.json(note)
-	} catch (error) {
-		return res.status(400).json({error})
-	}
-})	
 
-app.put("/api/notes/:id", async (req, res) => {
+// Note.sync()
 
-	const note = await Note.findByPk(req.params.id)
-	if (note) {
-		note.important = req.body.important
-		await note.save()
-		res.json(note)
-	} else {
-		res.status(404).end()
-	}
-})
 
-const PORT = process.env.PORT || 3001
 
-app.listen(PORT, () => {
-	console.log(`Server running on port ${PORT}`)
-})
+// const PORT = process.env.PORT || 3001
+
+// app.listen(PORT, () => {
+// 	console.log(`Server running on port ${PORT}`)
+// })
