@@ -5,6 +5,8 @@ const app = express()
 
 app.use(express.json())
 app.use("/api/blogs", require("./controllers/blogs"))
+app.use("/api/users", require("./controllers/users"))
+app.use("/api/login", require("./controllers/login"))
 
 const {PORT} = require("./util/config")
 const { ConnectToDatabase } = require("./util/db")
@@ -19,10 +21,10 @@ async function start() {
 function errorHandler(error, request ,response, next) {
 	switch (error.name) {
 		case "SequelizeValidationError":
-			response.status(400).end()
-		default:
-			next(error)
+			return response.status(400).send({error: error.errors.map(err => err.message)})
+
 	}
+	next(error)
 	
 }
 

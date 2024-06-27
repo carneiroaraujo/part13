@@ -1,12 +1,27 @@
-
+const jwt = require("jsonwebtoken")
 const router = require("express").Router()
 
-const Note = require("../models/note")
+const {Note, User} = require("../models")
+const { SECRET } = require("../util/config")
 
-async function noteFinder(req, res, next) {
-  req.note = await Note.findByPk(req.params.id)
-  next()
+function tokenExtractor(req, res, next) {
+	const authorization = req.get("authorization")
+	if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
+		try {
+			req.decodedToken = jwt.verify(authorization.substring(7), SECRET)
+		} catch {
+			return res.status(401).json({ error: "token invalid" })
+		}
+	} else {
+		return res.status(401).json({ error: "token missing" })
+	}
+	next()
 }
+async function noteFinder(req, res, next) {
+	req.note = await Note.findByPk(req.params.id)
+	next()
+}
+
 router.get("/:id", noteFinder, async (req, res) => {
 
 	const note = req.note
@@ -18,19 +33,27 @@ router.get("/:id", noteFinder, async (req, res) => {
 })
 
 router.get("/", async (req, res) => {
-	const notes = await Note.findAll()
+	const notes = await Note.findAll({
+		attributes: {exclude: ["userId"]},
+		include: {
+			model: User,
+			attributes: ["name"]
+		}
+	})
 	res.json(notes)
 })
 
-router.post("/", async (req, res) => {
-	console.log(req.body)
-	try {	
-		const note = await Note.create(req.body)
+router.post("/", tokenExtractor, async (req, res) => {
+	
+	try {
+		console.log(req.decodedToken);
+		const user = await User.findByPk(req.decodedToken.id)
+		const note = await Note.create({...req.body, userId: user.id, date: new Date()})
 		res.json(note)
 	} catch (error) {
-		return res.status(400).json({error})
+		return res.status(400).json({ error })
 	}
-})	
+})
 
 router.put("/:id", noteFinder, async (req, res) => {
 
@@ -49,10 +72,10 @@ router.delete("/:id", async (req, res) => {
 	const note = await Note.findByPk(req.params.id)
 	if (note) {
 		await note.destroy()
-		
-	} 
+
+	}
 	res.status(204).end()
-	
+
 })
 
 module.exports = router

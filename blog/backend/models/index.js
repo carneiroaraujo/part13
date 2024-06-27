@@ -1,6 +1,14 @@
 const Blog = require("./blog")
-Blog.sync()
-console.log("Yep. The index.js file of the models folder is properly executed.");
+const User = require("./user")
+
+User.hasMany(Blog)
+Blog.belongsTo(User)
+
+Blog.sync({alter: true})
+User.sync({alter: true})
+
+console.log("Yep. The index.js file of the models folder is properly being executed.");
+
 module.exports = {
-  Blog
+  Blog, User
 }
