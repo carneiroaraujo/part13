@@ -4,6 +4,8 @@ const router = require("express").Router()
 const {Note, User} = require("../models")
 const { SECRET } = require("../util/config")
 
+const {Op} = require("sequelize")
+Op.
 function tokenExtractor(req, res, next) {
 	const authorization = req.get("authorization")
 	if (authorization && authorization.toLowerCase().startsWith("bearer ")) {

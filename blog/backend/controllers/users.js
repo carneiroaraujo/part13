@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
 router.put("/:username", async (req, res) => {
   const newUsername = req.body.username
   const user = await User.findOne({
-    where: {
+    where: {  
       username: req.params.username
     }
   })
