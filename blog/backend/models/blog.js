@@ -24,10 +24,20 @@ Blog.init({
     type: DataTypes.INTEGER,
     defaultValue: 0
   },
+  yearWritten: {
+    type: DataTypes.INTEGER,
+    validate: {
+      isBetweenInterval(value) {
+        if (value > new Date().getFullYear() || value < 1991) {
+          throw new Error("year written attribute must be between 1991 and the current year")
+        }
+      }
+    }
+  }
 },{
   sequelize,
   underscored: true,
-  timestamps: false,
+  timestamps: true,
   modelName: "blog"
 })
 

@@ -9,11 +9,17 @@ router.post("/", async (req, res) => {
       username,
     }
   })
+
   const passwordCorrect = password === "secret"
   if (!(passwordCorrect && user)) {
     return res
       .status(401)
       .json({ error: "invalid username or password" })
+  }
+  if (user.disabled) {
+    return response.status(401).json({
+      error: "account disabled, please contact admin"
+    })
   }
   const token = jwt.sign({ username: user.username, id: user.id }, SECRET)
   res
