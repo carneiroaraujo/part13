@@ -8,6 +8,7 @@ app.use("/api/blogs", require("./controllers/blogs"))
 app.use("/api/users", require("./controllers/users"))
 app.use("/api/login", require("./controllers/login"))
 app.use("/api/authors", require("./controllers/authors"))
+app.use("/api/readinglists", require("./controllers/readinglists"))
 
 const {PORT} = require("./util/config")
 const { ConnectToDatabase } = require("./util/db")

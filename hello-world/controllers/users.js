@@ -1,8 +1,10 @@
 const router = require("express").Router()
 
-const { User, Note } = require("../models")
+const { User, Note, Team } = require("../models")
 
 const {tokenExtractor} = require("../middleware")
+
+const {Op} = require("sequelize")
 
 async function isAdmin(req, res, next) {
   const user = await User.findByPk(req.decodedToken.id)
@@ -13,10 +15,23 @@ async function isAdmin(req, res, next) {
 }
 
 router.get("/", async (req, res) => {
+  await User.findOne({
+    
+  })
   res.json(await User.findAll({
-    include: {
-      model: Note
-    }
+    include: [
+      {
+        model: Note,
+        attributes: {exclude: ["userId"]}
+      },
+      {
+        model: Team,
+        attributes: ["name", "id"],
+        through: {
+          attributes: []
+        }
+      }
+    ]
   }))
 })
 

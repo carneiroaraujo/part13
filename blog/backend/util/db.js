@@ -18,6 +18,13 @@ async function runMigration() {
     files: migrations.map(mig => mig.name)
   });
 }
+async function rollbackMigration() {
+  await sequelize.authenticate()
+  const migrator = new Umzug(migrationConf)
+  await migrator.down()
+
+
+}
 
 async function ConnectToDatabase() {
   try {
@@ -25,11 +32,11 @@ async function ConnectToDatabase() {
     await runMigration()
     console.log("Connected to the database");
   } catch (error) {
-    console.log("Failed to connect to the database ");
+    console.log("Failed to connect to the database ", error.message);
     return process.exit(1)
   }
   return null
 }
 
 
-module.exports = {ConnectToDatabase, sequelize}
+module.exports = {ConnectToDatabase, sequelize, rollbackMigration}
