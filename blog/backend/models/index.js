@@ -1,6 +1,7 @@
 const Blog = require("./blog")
 const User = require("./user")
 const UserBlogs = require("./user_blogs")
+const Session = require("./session")
 
 User.hasMany(Blog, {as: "blogs"})
 Blog.belongsTo(User)
@@ -11,5 +12,5 @@ Blog.belongsToMany(User, {through: UserBlogs})
 console.log("Yep. The index.js file of the models folder is properly being executed.");
 
 module.exports = {
-  Blog, User, UserBlogs
+  Blog, User, UserBlogs, Session
 }
